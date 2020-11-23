@@ -15,14 +15,9 @@ def empty(value):
 def process_lines(image_src):
     img = image_src
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-
     ret, thresh1 = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
 
     thresh1 = cv2.bitwise_not(thresh1)
-    #th3 = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-    kernel = np.ones((5, 5), np.uint8)
-    #dilation = cv2.dilate(th3, kernel, iterations=1)
-
 
     edges = cv2.Canny(thresh1, threshold1=50, threshold2=200, apertureSize = 3)
 
@@ -66,30 +61,20 @@ def process_lines(image_src):
     merged_lines_all.extend(merged_lines_y)
     print("process groups lines", len(_lines), len(merged_lines_all))
 
-    img_merged_lines = img
+    img_merged_lines = image_src
     blank_img = np.full(img_merged_lines.shape, 255, np.float32)
     for line in merged_lines_all:
         cv2.line(blank_img, (line[0][0], line[0][1]), (line[1][0],line[1][1]), (0,0,255), 6)
 
-    resizedImage = cv2.resize(img_merged_lines, (400, 400))
-    dst = cv2.Canny(resizedImage, 50, 200, None, 3)
-    #gray2rgb = cv2.cvtColor(dst, cv2.COLOR_GRAY2BGR)
-    #kernel = np.ones((5, 5), np.uint8)
-    #dilation = cv2.dilate(gray2rgb, kernel, iterations=1)
-    #erosion = cv2.erode(dilation, kernel, iterations=1)
-    cv2.imshow("Red lines Merged", resizedImage)
-    #width, height = 300, 300
-    #imagePoints = np.float32([[106, 152], [831, 164], [80, 1053], [840, 1061]])
-    #imagePoints2 = np.float32([[0, 0], [width, 0], [0, height], [width, height]])
-    #matrix = cv2.getPerspectiveTransform(imagePoints, imagePoints2)
-    #newImage = cv2.warpPerspective(img_merged_lines, matrix, (width, height))
+    imageResized = cv2.resize(img_merged_lines, (400, 400))
+    cv2.imwrite('prediction/lines_gray.jpg', gray)
+    cv2.imwrite('prediction/lines_thresh.jpg', thresh1)
+    cv2.imwrite('prediction/lines_edges.jpg', edges)
+    cv2.imwrite('prediction/lines_lines.jpg', img)
+    cv2.imwrite('prediction/merged_lines.jpg', img_merged_lines)
+    cv2.imwrite('prediction/whiteImage.jpg', blank_img)
 
-    #cv2.imshow("Image",img_merged_lines)
-    #cv2.imshow("Merged Lines", dst)
-    #cv2.imshow('prediction/merged_lines.jpg', resizedImage)
-    #cv2.imwrite("Resources/CannyImg.png", thresh1)
-    #cv2.imwrite("Resources/lowResolution.png", newImage)
-
+    #cv2.imshow("Image", blank_img)
 
     return merged_lines_all
 
@@ -238,13 +223,10 @@ def get_distance(line1, line2):
                               line1[0][0], line1[0][1], line1[1][0], line1[1][1])
     dist4 = DistancePointLine(line2[1][0], line2[1][1],
                               line1[0][0], line1[0][1], line1[1][0], line1[1][1])
-
-
     return min(dist1,dist2,dist3,dist4)
 
 if __name__ == '__main__':
-    img = cv2.imread("Resources/TesteImage.png")
-    img2 = cv2.imread("Resources/ImageWithBorderlessEdges.jpeg")
+    img = cv2.imread("Resources/Image.jpeg")
     a = process_lines(img)
     df = {"x1":[],"y1":[],"x2":[],"y2":[],"Dist":[]}
     for i in a:
@@ -259,5 +241,5 @@ if __name__ == '__main__':
         df["Dist"].append(dist)
 
     df = pd.DataFrame(df)
-    df.to_csv("grafoTeste.csv", index=False)
+    df.to_csv("Grafo.csv", index=False)
     cv2.waitKey(0)
