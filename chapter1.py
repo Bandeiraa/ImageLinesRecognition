@@ -228,7 +228,9 @@ def get_distance(line1, line2):
 if __name__ == '__main__':
     img = cv2.imread("Resources/Image.jpeg")
     a = process_lines(img)
+    print(a)
     df = {"x1":[],"y1":[],"x2":[],"y2":[],"Dist":[]}
+    dfc = {"p1": [], "p2": [], "p3": [], "p4": []}
     for i in a:
         p1 = i[0]
         p2 = i[1]
@@ -249,6 +251,12 @@ if __name__ == '__main__':
         result = np.cross(normalizedTarget, np.array([0, 1, 0])) * offset
         print("Resultado: ", result)
 
-    df = pd.DataFrame(df)
-    df.to_csv("Grafo.csv", index=False)
+        dfc["p1"].append(p1[0] - result)
+        dfc["p2"].append(p1[1] - result)
+        dfc["p3"].append(p1[0] + result)
+        dfc["p4"].append(p1[1] + result)
+
+
+    dfc = pd.DataFrame(dfc)
+    dfc.to_csv("Grafo.csv", index=False)
     cv2.waitKey(0)
