@@ -233,12 +233,21 @@ if __name__ == '__main__':
         p1 = i[0]
         p2 = i[1]
 
+        offset = 100
         dist = ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**0.5
         df["x1"].append(p1[0])
         df["y1"].append(p1[1])
         df["x2"].append(p2[0])
         df["y2"].append(p2[1])
         df["Dist"].append(dist)
+
+        xVar = np.array([p1[0], 0, p1[1]])
+        xVar2 = np.array([p2[0], 0, p2[1]])
+        targetX = abs(xVar - xVar2)
+        normalizedTarget = targetX / np.linalg.norm(targetX)
+        #print(normalizedTarget)
+        result = np.cross(normalizedTarget, np.array([0, 1, 0])) * offset
+        print("Resultado: ", result)
 
     df = pd.DataFrame(df)
     df.to_csv("Grafo.csv", index=False)
