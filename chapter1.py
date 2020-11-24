@@ -228,9 +228,8 @@ def get_distance(line1, line2):
 if __name__ == '__main__':
     img = cv2.imread("Resources/Image.jpeg")
     a = process_lines(img)
-    print(a)
     df = {"x1":[],"y1":[],"x2":[],"y2":[],"Dist":[]}
-    dfc = {"p1": [], "p2": [], "p3": [], "p4": []}
+    dfc = {"x1": [], "y1": [], "z1": [], "x2": [], "y2": [], "z2": [], "x3": [], "y3": [], "z3": [], "x4": [], "y4": [], "z4": []}
     for i in a:
         p1 = i[0]
         p2 = i[1]
@@ -249,13 +248,27 @@ if __name__ == '__main__':
         normalizedTarget = targetX / np.linalg.norm(targetX)
         #print(normalizedTarget)
         result = np.cross(normalizedTarget, np.array([0, 1, 0])) * offset
-        print("Resultado: ", result)
+        #print("Resultado: ", result)
+        #print(p1[0] - result)
+        #print(result[0])
 
-        dfc["p1"].append(p1[0] - result)
-        dfc["p2"].append(p1[1] - result)
-        dfc["p3"].append(p1[0] + result)
-        dfc["p4"].append(p1[1] + result)
+        p1 = p1[0] - result
+        p2 = p1[1] - result
+        p3 = p1[0] + result
+        p4 = p1[1] + result
 
+        dfc["x1"].append(p1[0])
+        dfc["y1"].append(p1[1])
+        dfc["z1"].append(p1[2])
+        dfc["x2"].append(p2[0])
+        dfc["y2"].append(p2[1])
+        dfc["z2"].append(p2[2])
+        dfc["x3"].append(p3[0])
+        dfc["y3"].append(p3[1])
+        dfc["z3"].append(p3[2])
+        dfc["x4"].append(p4[0])
+        dfc["y4"].append(p4[1])
+        dfc["z4"].append(p4[2])
 
     dfc = pd.DataFrame(dfc)
     dfc.to_csv("Grafo.csv", index=False)
