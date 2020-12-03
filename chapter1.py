@@ -228,19 +228,19 @@ def get_distance(line1, line2):
 if __name__ == '__main__':
     img = cv2.imread("Resources/Image.jpeg")
     a = process_lines(img)
-    df = {"x1":[],"y1":[],"x2":[],"y2":[],"Dist":[]}
+    df = {"x1":[],"y1":[],"x2":[],"y2":[]}
     dfc = {"x1": [], "y1": [], "z1": [], "x2": [], "y2": [], "z2": [], "x3": [], "y3": [], "z3": [], "x4": [], "y4": [], "z4": []}
     for i in a:
         p1 = i[0]
         p2 = i[1]
 
         offset = 100
-        dist = ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**0.5
+        #dist = ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**0.5
         df["x1"].append(p1[0])
         df["y1"].append(p1[1])
         df["x2"].append(p2[0])
         df["y2"].append(p2[1])
-        df["Dist"].append(dist)
+        #df["Dist"].append(dist)
 
         xVar = np.array([p1[0], 0, p1[1]])
         xVar2 = np.array([p2[0], 0, p2[1]])
@@ -257,19 +257,34 @@ if __name__ == '__main__':
         p3 = p1[0] + result
         p4 = p1[1] + result
 
-        dfc["x1"].append(p1[0])
-        dfc["y1"].append(p1[1])
-        dfc["z1"].append(p1[2])
-        dfc["x2"].append(p2[0])
-        dfc["y2"].append(p2[1])
-        dfc["z2"].append(p2[2])
-        dfc["x3"].append(p3[0])
-        dfc["y3"].append(p3[1])
-        dfc["z3"].append(p3[2])
-        dfc["x4"].append(p4[0])
-        dfc["y4"].append(p4[1])
-        dfc["z4"].append(p4[2])
+        dfc["x1"].append(int(p1[0]))
+        dfc["y1"].append(int(p1[1]))
+        dfc["z1"].append(int(p1[2]))
+        dfc["x2"].append(int(p2[0]))
+        dfc["y2"].append(int(p2[1]))
+        dfc["z2"].append(int(p2[2]))
+        dfc["x3"].append(int(p3[0]))
+        dfc["y3"].append(int(p3[1]))
+        dfc["z3"].append(int(p3[2]))
+        dfc["x4"].append(int(p4[0]))
+        dfc["y4"].append(int(p4[1]))
+        dfc["z4"].append(int(p4[2]))
+
+        #dfc["x1"].append(p1[0])
+        #dfc["y1"].append(p1[1])
+        #dfc["z1"].append(p1[2])
+        #dfc["x2"].append(p2[0])
+        #dfc["y2"].append(p2[1])
+        #dfc["z2"].append(p2[2])
+        #dfc["x3"].append(p3[0])
+        #dfc["y3"].append(p3[1])
+        #dfc["z3"].append(p3[2])
+        #dfc["x4"].append(p4[0])
+        #dfc["y4"].append(p4[1])
+        #dfc["z4"].append(p4[2])
 
     dfc = pd.DataFrame(dfc)
-    dfc.to_csv("Grafo.csv", index=False)
+    df = pd.DataFrame(df)
+    df.to_csv("Graph.csv", index=False)
+    dfc.to_csv("Grafo.csv", index=False, sep = ";")
     cv2.waitKey(0)
