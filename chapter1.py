@@ -1,8 +1,10 @@
 import math
+import pandas as pd
 import numpy as np
 import cv2
-import pandas as pd
-import matplotlib.image as mpimg
+import matplotlib.plt as plt
+
+
 
 
 def get_lines(lines_in):
@@ -300,3 +302,72 @@ if __name__ == '__main__':
     df.to_csv("Graph.csv", index=False)
     dfc.to_csv("Grafo.csv", index=False, sep=";")
     cv2.waitKey(0)
+
+    tuple_data = process_lines(img)
+    # df = {"x1": [], "y1": [], "x2": [], "y2": [], "Dist": []}
+    dfc = {"x1": [], "y1": [], "z1": [], "x2": [], "y2": [], "z2": [], "x3": [], "y3": [], "z3": [], "x4": [], "y4": [],
+           "z4": []}
+
+    df = pd.DataFrame([lst for lst in tuple_data])
+    print(df)
+    thresh_hold = 20
+
+
+
+    for i,line in df.iterrows():
+        for j, line2 in df.iterrows():
+            if i != j:
+                line1_p1 = line[0]
+                line1_p2 = line[1]
+
+                line2_p1 = line2[0]
+                line2_p2 = line2[1]
+
+                dist = ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
+
+    # for i in a:
+    #     p1 = i[0]
+    #     p2 = i[1]
+    #
+    #     offset = 100
+    #     dist = ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
+    #     df["x1"].append(p1[0])
+    #     df["y1"].append(p1[1])
+    #     df["x2"].append(p2[0])
+    #     df["y2"].append(p2[1])
+    #     df["Dist"].append(dist)
+    #
+    #
+    #
+    #     xVar = np.array([p1[0], 0, p1[1]])
+    #     xVar2 = np.array([p2[0], 0, p2[1]])
+    #     targetX = abs(xVar - xVar2)
+    #     normalizedTarget = targetX / np.linalg.norm(targetX)
+    #     # print(normalizedTarget)
+    #     result = np.cross(normalizedTarget, np.array([0, 1, 0])) * offset
+    #     # print("Resultado: ", result)
+    #     # print(p1[0] - result)
+    #     # print(result[0])
+    #
+    #     p1 = xVar - result
+    #     p2 = xVar + result
+    #     p3 = xVar2 - result
+    #     p4 = xVar2 + result
+    #
+    #
+    #     dfc["x1"].append(p1[0])
+    #     dfc["y1"].append(p1[1])
+    #     dfc["z1"].append(p1[2])
+    #     dfc["x2"].append(p2[0])
+    #     dfc["y2"].append(p2[1])
+    #     dfc["z2"].append(p2[2])
+    #     dfc["x3"].append(p3[0])
+    #     dfc["y3"].append(p3[1])
+    #     dfc["z3"].append(p3[2])
+    #     dfc["x4"].append(p4[0])
+    #     dfc["y4"].append(p4[1])
+    #     dfc["z4"].append(p4[2])
+
+    dfc = pd.DataFrame(dfc)
+    dfc.to_csv("Grafo.csv", index=False)
+    # cv2.waitKey(0)
