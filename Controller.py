@@ -8,9 +8,14 @@ import time
 controller_api = Blueprint('controller_api', __name__)
 
 
-@controller_api.route('/send_image', methods=['GET'])
-def get_verify_query():
-    path = "Resources/newFiles/1.jpg"
+@controller_api.route("/send_image", methods=["POST"])
+def process_image():
+    file = request.files['image']
+    path = 'temp/im-received.jpg'
+    file.save(path)
+
     result = generate_walls(path)
+
+    os.remove(path)
 
     return jsonify(result)
