@@ -1,20 +1,7 @@
-import math
 import pandas as pd
 import numpy as np
 import cv2
-import matplotlib.plt as plt
-
-
-
-
-def get_lines(lines_in):
-    if cv2.__version__ < '3.0':
-        return lines_in[0]
-    return [l[0] for l in lines_in]
-
-
-def empty(value):
-    pass
+import math
 
 
 def process_lines(image_src):
@@ -64,7 +51,7 @@ def process_lines(image_src):
     merged_lines_all = []
     merged_lines_all.extend(merged_lines_x)
     merged_lines_all.extend(merged_lines_y)
-    print("process groups lines", len(_lines), len(merged_lines_all))
+    # print("process groups lines", len(_lines), len(merged_lines_all))
 
     img_merged_lines = image_src
     blank_img = np.full(img_merged_lines.shape, 255, np.float32)
@@ -175,8 +162,12 @@ def merge_lines_segments1(lines, use_log=False):
     return [points[0], points[len(points) - 1]]
 
 
-# https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.cdist.html
-# https://stackoverflow.com/questions/32702075/what-would-be-the-fastest-way-to-find-the-maximum-of-all-possible-distances-betw
+def get_lines(lines_in):
+    if cv2.__version__ < '3.0':
+        return lines_in[0]
+    return [l[0] for l in lines_in]
+
+
 def lines_close(line1, line2):
     dist1 = math.hypot(line1[0][0] - line2[0][0], line1[0][0] - line2[0][1])
     dist2 = math.hypot(line1[0][2] - line2[0][0], line1[0][3] - line2[0][1])
@@ -194,9 +185,6 @@ def lineMagnitude(x1, y1, x2, y2):
     return lineMagnitude
 
 
-# Calc minimum distance from a point and a line segment (i.e. consecutive vertices in a polyline).
-# https://nodedangles.wordpress.com/2010/05/16/measuring-distance-from-a-point-to-a-line-segment/
-# http://paulbourke.net/geometry/pointlineplane/
 def DistancePointLine(px, py, x1, y1, x2, y2):
     # http://local.wasp.uwa.edu.au/~pbourke/geometry/pointline/source.vba
     LineMag = lineMagnitude(x1, y1, x2, y2)
@@ -238,136 +226,82 @@ def get_distance(line1, line2):
     return min(dist1, dist2, dist3, dist4)
 
 
-if __name__ == '__main__':
-    img = cv2.imread("Resources/Image.jpeg")
-    a = process_lines(img)
-    df = {"x1": [], "y1": [], "x2": [], "y2": []}
-    dfc = {"x1": [], "y1": [], "z1": [], "x2": [], "y2": [], "z2": [], "x3": [], "y3": [], "z3": [], "x4": [], "y4": [],
-           "z4": []}
-    for i in a:
-        p1 = i[0]
-        p2 = i[1]
+def join_corners(df):
+    max_value = df.max().max()
 
-        offset = 100
-        # dist = ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**0.5
-        df["x1"].append(p1[0])
-        df["y1"].append(p1[1])
-        df["x2"].append(p2[0])
-        df["y2"].append(p2[1])
-        # df["Dist"].append(dist)
+    new_df = df.copy()
+    df_normalized = df / max_value
 
-        xVar = np.array([p1[0], 0, p1[1]])
-        xVar2 = np.array([p2[0], 0, p2[1]])
-        targetX = abs(xVar - xVar2)
-        normalizedTarget = targetX / np.linalg.norm(targetX)
-        # print(normalizedTarget)
-        result = np.cross(normalizedTarget, np.array([0, 1, 0])) * offset
-        # print("Resultado: ", result)
-        # print(p1[0] - result)
-        # print(result[0])
-
-        p1 = p1[0] - result
-        p2 = p1[1] - result
-        p3 = p1[0] + result
-        p4 = p1[1] + result
-
-        dfc["x1"].append(int(p1[0]))
-        dfc["y1"].append(int(p1[1]))
-        dfc["z1"].append(int(p1[2]))
-        dfc["x2"].append(int(p2[0]))
-        dfc["y2"].append(int(p2[1]))
-        dfc["z2"].append(int(p2[2]))
-        dfc["x3"].append(int(p3[0]))
-        dfc["y3"].append(int(p3[1]))
-        dfc["z3"].append(int(p3[2]))
-        dfc["x4"].append(int(p4[0]))
-        dfc["y4"].append(int(p4[1]))
-        dfc["z4"].append(int(p4[2]))
-
-        # dfc["x1"].append(p1[0])
-        # dfc["y1"].append(p1[1])
-        # dfc["z1"].append(p1[2])
-        # dfc["x2"].append(p2[0])
-        # dfc["y2"].append(p2[1])
-        # dfc["z2"].append(p2[2])
-        # dfc["x3"].append(p3[0])
-        # dfc["y3"].append(p3[1])
-        # dfc["z3"].append(p3[2])
-        # dfc["x4"].append(p4[0])
-        # dfc["y4"].append(p4[1])
-        # dfc["z4"].append(p4[2])
-
-    dfc = pd.DataFrame(dfc)
-    df = pd.DataFrame(df)
-    df.to_csv("Graph.csv", index=False)
-    dfc.to_csv("Grafo.csv", index=False, sep=";")
-    cv2.waitKey(0)
-
-    tuple_data = process_lines(img)
-    # df = {"x1": [], "y1": [], "x2": [], "y2": [], "Dist": []}
-    dfc = {"x1": [], "y1": [], "z1": [], "x2": [], "y2": [], "z2": [], "x3": [], "y3": [], "z3": [], "x4": [], "y4": [],
-           "z4": []}
-
-    df = pd.DataFrame([lst for lst in tuple_data])
-    print(df)
-    thresh_hold = 20
-
-
-
-    for i,line in df.iterrows():
-        for j, line2 in df.iterrows():
+    distis = []
+    threshold = 0.025
+    for i, line in df_normalized.iterrows():
+        for j, line2 in df_normalized[i + 1:].iterrows():
             if i != j:
-                line1_p1 = line[0]
-                line1_p2 = line[1]
+                line1_p1 = (line[0], line[1])
+                line1_p2 = (line[2], line[3])
+                line2_p1 = (line2[0], line2[1])
+                line2_p2 = (line2[2], line2[3])
 
-                line2_p1 = line2[0]
-                line2_p2 = line2[1]
+                dist_1 = ((line1_p1[0] - line2_p1[0]) ** 2 + (line1_p1[1] - line2_p1[1]) ** 2) ** 0.5
+                dist_2 = ((line1_p1[0] - line2_p2[0]) ** 2 + (line1_p1[1] - line2_p2[1]) ** 2) ** 0.5
+                dist_3 = ((line1_p2[0] - line2_p1[0]) ** 2 + (line1_p2[1] - line2_p1[1]) ** 2) ** 0.5
+                dist_4 = ((line1_p2[0] - line2_p2[0]) ** 2 + (line1_p2[1] - line2_p2[1]) ** 2) ** 0.5
 
-                dist = ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
+                if threshold >= dist_1:
+                    x_1, y_1 = new_df.loc[i][0: 2]
+                    x_2, y_2 = new_df.loc[j][0: 2]
 
-    # for i in a:
-    #     p1 = i[0]
-    #     p2 = i[1]
-    #
-    #     offset = 100
-    #     dist = ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
-    #     df["x1"].append(p1[0])
-    #     df["y1"].append(p1[1])
-    #     df["x2"].append(p2[0])
-    #     df["y2"].append(p2[1])
-    #     df["Dist"].append(dist)
-    #
-    #
-    #
-    #     xVar = np.array([p1[0], 0, p1[1]])
-    #     xVar2 = np.array([p2[0], 0, p2[1]])
-    #     targetX = abs(xVar - xVar2)
-    #     normalizedTarget = targetX / np.linalg.norm(targetX)
-    #     # print(normalizedTarget)
-    #     result = np.cross(normalizedTarget, np.array([0, 1, 0])) * offset
-    #     # print("Resultado: ", result)
-    #     # print(p1[0] - result)
-    #     # print(result[0])
-    #
-    #     p1 = xVar - result
-    #     p2 = xVar + result
-    #     p3 = xVar2 - result
-    #     p4 = xVar2 + result
-    #
-    #
-    #     dfc["x1"].append(p1[0])
-    #     dfc["y1"].append(p1[1])
-    #     dfc["z1"].append(p1[2])
-    #     dfc["x2"].append(p2[0])
-    #     dfc["y2"].append(p2[1])
-    #     dfc["z2"].append(p2[2])
-    #     dfc["x3"].append(p3[0])
-    #     dfc["y3"].append(p3[1])
-    #     dfc["z3"].append(p3[2])
-    #     dfc["x4"].append(p4[0])
-    #     dfc["y4"].append(p4[1])
-    #     dfc["z4"].append(p4[2])
+                    new_x = (x_1 + x_2) / 2
+                    new_y = (y_1 + y_2) / 2
 
-    dfc = pd.DataFrame(dfc)
-    dfc.to_csv("Grafo.csv", index=False)
-    # cv2.waitKey(0)
+                    new_df.loc[i][0] = new_x
+                    new_df.loc[i][1] = new_y
+                    new_df.loc[j][0] = new_x
+                    new_df.loc[j][1] = new_y
+                elif threshold >= dist_2:
+                    x_1, y_1 = new_df.loc[i][0: 2]
+                    x_2, y_2 = new_df.loc[j][2: 5]
+
+                    new_x = (x_1 + x_2) / 2
+                    new_y = (y_1 + y_2) / 2
+
+                    new_df.loc[i][0] = new_x
+                    new_df.loc[i][1] = new_y
+                    new_df.loc[j][2] = new_x
+                    new_df.loc[j][3] = new_y
+                elif threshold >= dist_3:
+                    x_1, y_1 = new_df.loc[i][2: 5]
+                    x_2, y_2 = new_df.loc[j][0: 2]
+
+                    new_x = (x_1 + x_2) / 2
+                    new_y = (y_1 + y_2) / 2
+
+                    new_df.loc[i][2] = new_x
+                    new_df.loc[i][3] = new_y
+                    new_df.loc[j][0] = new_x
+                    new_df.loc[j][1] = new_y
+                elif threshold >= dist_4:
+                    x_1, y_1 = new_df.loc[i][2: 5]
+                    x_2, y_2 = new_df.loc[j][2: 5]
+
+                    new_x = (x_1 + x_2) / 2
+                    new_y = (y_1 + y_2) / 2
+
+                    new_df.loc[i][2] = new_x
+                    new_df.loc[i][3] = new_y
+                    new_df.loc[j][2] = new_x
+                    new_df.loc[j][3] = new_y
+
+            distis.extend([dist_4, dist_3, dist_2, dist_1])
+
+    return new_df
+
+
+def generate_walls(path: str) -> dict:
+    img = cv2.imread(path)
+    tuple_data = process_lines(img)
+
+    df = pd.DataFrame([(lst[0][0], lst[0][1], lst[1][0], lst[1][1]) for lst in tuple_data])
+    df = join_corners(df)
+
+    return df.to_json(orient='split')
