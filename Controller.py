@@ -4,6 +4,7 @@ import glob
 import os
 import random
 import time
+import json
 
 controller_api = Blueprint('controller_api', __name__)
 
@@ -13,19 +14,13 @@ if not os.path.exists("temp"):
 
 @controller_api.route("/send_image", methods=["POST"])
 def process_image():
-    print("result")
     file = request.files['imagem']
-    print("result1")
 
     path = 'temp/im-received.jpg'
-    print("result2")
 
     file.save(path)
-    print("result3")
 
     result = generate_walls(path)
-
-    print(result)
     os.remove(path)
 
     return jsonify(result)

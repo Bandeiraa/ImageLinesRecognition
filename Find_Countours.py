@@ -304,4 +304,4 @@ def generate_walls(path: str) -> dict:
     df = pd.DataFrame([(lst[0][0], lst[0][1], lst[1][0], lst[1][1]) for lst in tuple_data])
     df = join_corners(df)
 
-    return df.to_json(orient='split')
+    return df.to_dict(orient='split')
